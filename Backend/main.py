@@ -116,3 +116,6 @@ def vehicle_exit(data: VehicleEntry):
         "amount_to_pay_kes": fee,
         "exit_time": exit_time.strftime("%Y-%m-%d %H:%M:%S")
     }
+@app.get("/")
+def read_root():
+    return {"message": "Modern Parking System API is running successfully"}
