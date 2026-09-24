@@ -8,6 +8,43 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from pydantic import BaseModel
+from datetime import datetime
+
+class PaymentRequest(BaseModel):
+    plate_number: str
+    payment_method: str  # "M-Pesa", "Card", "Cash"
+    amount_paid: float
+
+# In-memory audit trail for demonstration (or use your database model)
+audit_logs = []
+
+@app.post("/exit/pay")
+def process_payment(data: PaymentRequest):
+    # Simulate payment processing and barrier release
+    audit_record = {
+        "timestamp": datetime.now().isoformat(),
+        "plate_number": data.plate_number,
+        "method": data.payment_method,
+        "amount_kes": data.amount_paid,
+        "status": "Confirmed & Barrier Opened"
+    }
+    audit_logs.append(audit_record)
+    return {
+        "message": f"Payment of KES {data.amount_paid} received via {data.payment_method}.",
+        "barrier": "OPEN",
+        "receipt": audit_record
+    }
+
+@app.get("/admin/audit-logs")
+def get_audit_logs():
+    total_collection = sum(log["amount_kes"] for log in audit_logs)
+    return {
+        "total_revenue_kes": total_collection,
+        "transaction_count": len(audit_logs),
+        "records": audit_logs
+    }
+
 app = FastAPI(title="Modern Parking System - Kenya")
 
 # Enable CORS so the frontend can communicate with the backend
