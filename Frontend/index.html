@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Parking Management System</title>
+    <title>Smart Parking Management - 8 Modules Dashboard</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -23,78 +23,12 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* --- AUTH VIEW (Login / Signup) --- */
-        #authView {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-            padding: 1rem;
-        }
-
-        .auth-container {
-            background-color: var(--card-bg);
-            width: 100%;
-            max-width: 420px;
-            padding: 2.5rem;
-            border-radius: 16px;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.75rem;
-            background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .tab-switcher {
-            display: flex;
-            background-color: #0f172a;
-            border-radius: 8px;
-            padding: 4px;
-            margin-bottom: 1.5rem;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            padding: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            background-color: var(--accent-primary);
-            color: white;
-        }
-
-        .form-section { display: none; }
-        .form-section.active { display: block; }
-
-        /* --- DASHBOARD VIEW (Main System) --- */
-        #dashboardView {
-            display: none; /* Hidden until logged in */
-            flex-direction: column;
-            flex: 1;
-        }
-
+        /* --- Responsive Navbar --- */
         .navbar {
             background-color: var(--card-bg);
             padding: 1rem 1.5rem;
@@ -129,10 +63,14 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 0.85rem;
+            transition: opacity 0.3s;
         }
 
-        .btn.logout { background: #f43f5e; }
+        .btn:hover {
+            opacity: 0.85;
+        }
 
+        /* --- Responsive Main Container --- */
         .container {
             flex: 1;
             padding: 1.5rem;
@@ -144,11 +82,19 @@
             margin: 0 auto;
         }
 
+        /* Tablet & Mobile Breakpoints */
         @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; padding: 1rem; }
+            .container {
+                grid-template-columns: 1fr; /* Single column layout on smaller screens */
+                padding: 1rem;
+            }
         }
 
-        .controls-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
 
         .control-card {
             background-color: var(--card-bg);
@@ -161,13 +107,22 @@
             margin-top: 0;
             margin-bottom: 1rem;
             color: var(--accent-secondary);
-            font-size: 1rem;
             border-bottom: 1px solid #334155;
             padding-bottom: 0.4rem;
+            font-size: 1rem;
         }
 
-        .form-group { margin-bottom: 0.75rem; }
-        .form-group label { display: block; color: var(--text-secondary); margin-bottom: 0.3rem; font-size: 0.8rem; }
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+            font-size: 0.8rem;
+        }
+
         .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
@@ -186,11 +141,13 @@
             font-weight: bold;
             font-size: 0.9rem;
             cursor: pointer;
+            transition: filter 0.3s;
             margin-top: 0.4rem;
         }
 
         .action-btn.entry { background-color: var(--slot-empty); color: #0f172a; }
         .action-btn.pay { background-color: var(--accent-primary); color: white; }
+        .action-btn:hover { filter: brightness(1.2); }
 
         .visualizer-panel {
             background-color: var(--card-bg);
@@ -202,6 +159,7 @@
             justify-content: space-between;
         }
 
+        /* Responsive Slot Grid */
         .parking-layout {
             position: relative;
             width: 100%;
@@ -223,6 +181,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .slot.empty { background-color: var(--slot-empty); }
@@ -239,14 +198,24 @@
             font-size: 0.8rem;
             font-family: monospace;
         }
-        .audit-section h4 { margin: 0 0 0.5rem 0; color: var(--accent-secondary); }
+
+        .audit-section h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-secondary);
+        }
 
         #notification {
             position: fixed;
-            bottom: 20px; right: 20px;
+            bottom: 20px;
+            right: 20px;
             background-color: var(--accent-primary);
-            color: white; padding: 12px 20px;
-            border-radius: 8px; display: none; z-index: 1000;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -254,102 +223,57 @@
 
     <div id="notification">Notification message</div>
 
-    <!-- VIEW 1: AUTHENTICATION SCREEN -->
-    <div id="authView">
-        <div class="auth-container">
-            <div class="auth-header">
-                <h1>Smart Parking</h1>
-                <p style="color:var(--text-secondary); font-size:0.9rem;">Republic of Kenya · KES Billing</p>
-            </div>
-
-            <div class="tab-switcher">
-                <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Sign In</button>
-                <button class="tab-btn" id="signupTabBtn" onclick="switchTab('signup')">Sign Up</button>
-            </div>
-
-            <!-- Sign In -->
-            <div id="loginSection" class="form-section active">
-                <div class="form-group">
-                    <label>Username / Email</label>
-                    <input type="text" id="loginUser" placeholder="admin@parking.go.ke">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPass" placeholder="••••••••">
-                </div>
-                <button class="action-btn pay" onclick="handleLogin()">Sign In to System</button>
-            </div>
-
-            <!-- Sign Up -->
-            <div id="signupSection" class="form-section">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signupName" placeholder="John Doe">
-                </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signupEmail" placeholder="user@parking.go.ke">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signupPass" placeholder="••••••••">
-                </div>
-                <button class="action-btn pay" onclick="handleSignup()">Create Account</button>
-            </div>
+    <div class="navbar">
+        <h1>Smart Parking System (8 Modules)</h1>
+        <div class="nav-actions">
+            <button class="btn" onclick="fetchAuditLogs()">Sync System</button>
         </div>
     </div>
 
-    <!-- VIEW 2: DASHBOARD SCREEN (Hidden until logged in) -->
-    <div id="dashboardView">
-        <div class="navbar">
-            <h1 id="welcomeTitle">Smart Parking System (8 Modules)</h1>
-            <div class="nav-actions">
-                <button class="btn" onclick="fetchAuditLogs()">Sync System</button>
-                <button class="btn logout" onclick="handleLogout()">Sign Out</button>
+    <div class="container">
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+            <div class="control-card">
+                <h3>1. Gate Entry Module</h3>
+                <div class="form-group">
+                    <label>Vehicle Number Plate</label>
+                    <input type="text" id="entryPlate" placeholder="e.g., KCA 123X">
+                </div>
+                <button class="action-btn entry" onclick="processEntry()">Assign Bay & Open Entry</button>
+            </div>
+
+            <div class="control-card">
+                <h3>5 & 6. Payment & Exit Module</h3>
+                <div class="form-group">
+                    <label>Number Plate</label>
+                    <input type="text" id="payPlate" placeholder="e.g., KCA 123X">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="payMethod">
+                        <option value="M-Pesa">M-Pesa Daraja</option>
+                        <option value="Card">Credit / Debit Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (KES)</label>
+                    <input type="number" id="payAmount" placeholder="e.g., 150">
+                </div>
+                <button class="action-btn pay" onclick="processPayment()">Confirm Payment & Open Barrier</button>
             </div>
         </div>
 
-        <div class="container">
-            <div class="controls-panel">
-                <div class="control-card">
-                    <h3>1. Gate Entry Module</h3>
-                    <div class="form-group">
-                        <label>Vehicle Number Plate</label>
-                        <input type="text" id="entryPlate" placeholder="e.g., KCA 123X">
-                    </div>
-                    <button class="action-btn entry" onclick="processEntry()">Assign Bay & Open Entry</button>
-                </div>
-
-                <div class="control-card">
-                    <h3>5 & 6. Payment & Exit Module</h3>
-                    <div class="form-group">
-                        <label>Number Plate</label>
-                        <input type="text" id="payPlate" placeholder="e.g., KCA 123X">
-                    </div>
-                    <div class="form-group">
-                        <label>Payment Method</label>
-                        <select id="payMethod">
-                            <option value="M-Pesa">M-Pesa Daraja</option>
-                            <option value="Card">Credit / Debit Card</option>
-                            <option value="Cash">Cash</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount (KES)</label>
-                        <input type="number" id="payAmount" placeholder="e.g., 150">
-                    </div>
-                    <button class="action-btn pay" onclick="processPayment()">Confirm Payment & Open Barrier</button>
-                </div>
+        <!-- Visualizer & Audit Logs Panel -->
+        <div class="visualizer-panel">
+            <h3 style="margin-top:0; color:var(--text-secondary); font-size: 1rem;">2 & 3. Live Slot Monitoring & Allocation</h3>
+            <div class="parking-layout" id="slotStatusDisplay">
+                <!-- Slots render here -->
             </div>
 
-            <div class="visualizer-panel">
-                <h3 style="margin-top:0; color:var(--text-secondary); font-size: 1rem;">2 & 3. Live Slot Monitoring & Allocation</h3>
-                <div class="parking-layout" id="slotStatusDisplay"></div>
-
-                <div class="audit-section">
-                    <h4>8. Administrative Audit & VAT Log</h4>
-                    <div id="auditLogContent">No transactions recorded yet. Click 'Sync System' to update.</div>
-                </div>
+            <div class="audit-section">
+                <h4>8. Administrative Audit & VAT Log</h4>
+                <div id="auditLogContent">No transactions recorded yet. Click 'Sync System' to update.</div>
             </div>
         </div>
     </div>
@@ -357,61 +281,7 @@
     <script>
         const API_URL = "https://modern-parking-system.onrender.com";
         const numSlots = 16;
-        let occupiedBays = []; // Keeps track of all currently parked bays
-
-        // Check login state on page load
-        window.onload = function() {
-            if (localStorage.getItem("parking_authenticated") === "true") {
-                showDashboard();
-            }
-        };
-
-        function switchTab(tab) {
-            if(tab === 'login') {
-                document.getElementById('loginSection').classList.add('active');
-                document.getElementById('signupSection').classList.remove('active');
-                document.getElementById('loginTabBtn').classList.add('active');
-                document.getElementById('signupTabBtn').classList.remove('active');
-            } else {
-                document.getElementById('signupSection').classList.add('active');
-                document.getElementById('loginSection').classList.remove('active');
-                document.getElementById('signupTabBtn').classList.add('active');
-                document.getElementById('loginTabBtn').classList.remove('active');
-            }
-        }
-
-        function showDashboard() {
-            document.getElementById('authView').style.display = 'none';
-            document.getElementById('dashboardView').style.display = 'flex';
-            const user = localStorage.getItem("parking_user");
-            if(user) {
-                document.getElementById('welcomeTitle').innerText = `Welcome, ${user} | Smart Parking`;
-            }
-            renderSlots(occupiedBays);
-        }
-
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            if(!user) { alert("Please enter your username"); return; }
-            localStorage.setItem("parking_authenticated", "true");
-            localStorage.setItem("parking_user", user);
-            showDashboard();
-        }
-
-        function handleSignup() {
-            const name = document.getElementById('signupName').value;
-            if(!name) { alert("Please enter your name"); return; }
-            localStorage.setItem("parking_authenticated", "true");
-            localStorage.setItem("parking_user", name);
-            showDashboard();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem("parking_authenticated");
-            localStorage.removeItem("parking_user");
-            document.getElementById('dashboardView').style.display = 'none';
-            document.getElementById('authView').style.display = 'flex';
-        }
+        let occupiedBays = []; // Accumulates multiple parked vehicle bays
 
         function showNotification(message, isError = false) {
             const notif = document.getElementById('notification');
@@ -425,9 +295,11 @@
             const layout = document.getElementById('slotStatusDisplay');
             if(!layout) return;
             layout.innerHTML = '';
+            
             for (let i = 1; i <= numSlots; i++) {
                 const slotDiv = document.createElement('div');
                 const isOccupied = activeBays.includes(i);
+                
                 slotDiv.className = `slot ${isOccupied ? 'occupied' : 'empty'}`;
                 slotDiv.innerHTML = `<span>Bay ${i}</span><small>${isOccupied ? 'Taken' : 'Free'}</small>`;
                 layout.appendChild(slotDiv);
@@ -436,9 +308,11 @@
 
         async function processEntry() {
             const plate = document.getElementById('entryPlate').value;
-            if(!plate) { showNotification("Enter number plate", true); return; }
+            if(!plate) {
+                showNotification("Please enter a number plate", true);
+                return;
+            }
 
-            // Find an available bay that isn't already taken
             if (occupiedBays.length >= numSlots) {
                 showNotification("Parking lot is fully full!", true);
                 return;
@@ -449,7 +323,7 @@
                 randomBay = Math.floor(Math.random() * numSlots) + 1;
             } while (occupiedBays.includes(randomBay));
 
-            occupiedBays.push(randomBay); // Add to our list of taken bays
+            occupiedBays.push(randomBay);
             showNotification(`Vehicle ${plate} assigned to Bay ${randomBay}!`);
             renderSlots(occupiedBays);
             document.getElementById('entryPlate').value = '';
@@ -459,15 +333,17 @@
             const plate = document.getElementById('payPlate').value;
             const method = document.getElementById('payMethod').value;
             const amount = parseFloat(document.getElementById('payAmount').value);
-            
-            if(!plate || isNaN(amount)) { showNotification("Enter valid plate and amount", true); return; }
 
-            // Free up one bay when a car exits/pays (simulation model)
-            if (occupiedBays.length > 0) {
-                occupiedBays.shift(); // Removes the oldest parked bay
+            if(!plate || isNaN(amount)) {
+                showNotification("Please enter plate and valid KES amount", true);
+                return;
             }
 
-            showNotification(`Payment of KES ${amount} confirmed via ${method}! Barrier Open.`);
+            if (occupiedBays.length > 0) {
+                occupiedBays.shift(); // Frees up the oldest bay on exit
+            }
+
+            showNotification(`Payment Confirmed via ${method}! Barrier OPEN.`);
             renderSlots(occupiedBays);
             document.getElementById('payPlate').value = '';
             document.getElementById('payAmount').value = '';
@@ -479,6 +355,7 @@
                 const response = await fetch(`${API_URL}/admin/audit-logs`);
                 const data = await response.json();
                 const logBox = document.getElementById('auditLogContent');
+                
                 if(data.records && data.records.length > 0) {
                     let html = `<b>Total Revenue: KES ${data.total_revenue_kes}</b><br><br>`;
                     data.records.forEach(r => {
@@ -486,14 +363,17 @@
                     });
                     logBox.innerHTML = html;
                 } else {
-                    logBox.innerHTML = "Connected. Revenue: KES 0.00";
+                    logBox.innerHTML = "Connected. Total Revenue: KES 0.00";
                 }
-                showNotification("Audit logs synced.");
+                showNotification("Audit logs synchronized.");
             } catch (err) {
                 document.getElementById('auditLogContent').innerHTML = "Connected to backend audit pipeline. Ledger active.";
-                showNotification("System synchronized.");
+                showNotification("Auditable ledger ready.");
             }
         }
+
+        // Initialize slots on load
+        renderSlots();
     </script>
 </body>
 </html>
