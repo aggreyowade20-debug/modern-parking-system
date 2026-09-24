@@ -11,6 +11,18 @@ from pydantic import BaseModel
 from pydantic import BaseModel
 from datetime import datetime
 
+from fastapi.responses import HTMLResponse
+import os
+
+@app.get("/", response_class=HTMLResponse)
+def serve_frontend():
+    # Looks for index.html in the Frontend folder relative to backend
+    frontend_path = os.path.join(os.path.dirname(__file__), "../Frontend/index.html")
+    if os.path.exists(frontend_path):
+        with open(frontend_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h3>Frontend index.html not found. Please check file path.</h3>"
+
 class PaymentRequest(BaseModel):
     plate_number: str
     payment_method: str  # "M-Pesa", "Card", "Cash"
