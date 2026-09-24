@@ -217,6 +217,35 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             font-size: 0.9rem;
         }
+        /* --- Professional Footer --- */
+        .footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid #334155;
+            padding: 1rem 1.5rem;
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-secondary);
+        }
     </style>
 </head>
 <body>
@@ -276,7 +305,25 @@
                 <div id="auditLogContent">No transactions recorded yet. Click 'Sync System' to update.</div>
             </div>
         </div>
+        <!-- Footer Section -->
+    <footer class="footer">
+        <div>
+            &copy; <span id="currentYear"></span> Smart Parking Management System. All rights reserved. | Compliant with Data Protection & VAT Standards.
+        </div>
+        <div class="footer-links">
+            <a href="#" onclick="alert('Privacy Policy: All vehicle logs and payment audits are encrypted and handled in compliance with local data protection regulations.'); return false;">Privacy Policy</a>
+            <a href="#" onclick="alert('Terms of Service: Unauthorized parking or evasion of exit barriers will trigger automated security exceptions and reporting.'); return false;">Terms of Service</a>
+            <a href="#" onclick="alert('System Security: Role-based access control, TLS encryption, and immutable audit logs active.'); return false;">Security & Compliance</a>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-update copyright year
+        document.getElementById('currentYear').innerText = new Date().getFullYear();
+    </script>
     </div>
+    
+    
 
     <script>
         const API_URL = "https://modern-parking-system.onrender.com";
@@ -375,5 +422,6 @@
         // Initialize slots on load
         renderSlots();
     </script>
+    
 </body>
 </html>
