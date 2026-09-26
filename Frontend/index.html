@@ -67,9 +67,9 @@
             flex: 1;
             padding: 1.5rem;
             display: grid;
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: 360px 1fr;
             gap: 1.5rem;
-            max-width: 1450px;
+            max-width: 1500px;
             width: 100%;
             margin: 0 auto;
         }
@@ -118,7 +118,7 @@
         }
 
         .form-group {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
         }
 
         .form-group label {
@@ -165,18 +165,18 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive 22-Bay Slot Grid */
+        /* Responsive 22-Bay Slot Grid optimized for multi-device layout */
         .parking-layout {
             position: relative;
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
             gap: 12px;
             padding: 10px 0;
         }
 
         .slot {
-            height: 60px;
+            height: 65px;
             border-radius: 8px;
             color: #0f172a;
             font-weight: bold;
@@ -210,7 +210,7 @@
             color: var(--accent-secondary);
         }
 
-        /* --- Footer --- */
+        /* --- Professional Footer --- */
         .footer {
             background-color: var(--card-bg);
             border-top: 1px solid #334155;
@@ -259,7 +259,7 @@
     <div id="notification">Notification message</div>
 
     <div class="navbar">
-        <h1>Modern Parking System</h1>
+        <h1>Smart Parking System (22 Bays)</h1>
         <button class="btn" onclick="fetchAuditLogs()">Sync System</button>
     </div>
 
@@ -267,18 +267,18 @@
         <!-- Controls Panel -->
         <div class="controls-panel">
             <div class="control-card">
-                <h3>Gate Entry</h3>
+                <h3>1. Gate Entry Module</h3>
                 <div class="form-group">
-                    <label>Vehicle Number Plate</label>
-                    <input type="text" id="entryPlate" placeholder="e.g., KCA 123X">
+                    <label>Vehicle Number Plate (e.g., KCA 123X)</label>
+                    <input type="text" id="entryPlate" placeholder="KCA 123X">
                 </div>
                 <button class="action-btn entry" onclick="processEntry()">Assign Bay & Open Entry</button>
             </div>
 
             <div class="control-card">
-                <h3>Payment & Exit</h3>
+                <h3>5 & 6. Payment & Exit Module</h3>
                 <div class="form-group">
-                    <label>Number Plate (e.g. KCA 123X)</label>
+                    <label>Number Plate (Kenyan Format)</label>
                     <input type="text" id="payPlate" placeholder="KCA 123X" maxlength="8" oninput="handlePlateInput(this)">
                 </div>
                 <div class="form-group">
@@ -290,23 +290,24 @@
                     </select>
                 </div>
                 <div class="form-group">
-    <label>Computed Amount (KES) - Rate: KES 500/hr</label>
-    <input type="text" id="payAmount" readonly placeholder="" style="background-color: #1e293b; font-weight: bold; color: var(--accent-secondary);">
-</div>
+                    <label>Computed Amount (KES) - Rate: KES 500/hr</label>
+                    <input type="text" id="payAmount" readonly placeholder="" style="background-color: #1e293b; font-weight: bold; color: var(--accent-secondary);">
+                </div>
                 <button class="action-btn pay" onclick="processPayment()">Confirm Payment & Open Barrier</button>
             </div>
+        </div>
 
         <!-- Visualizer & Audit Logs Panel -->
         <div class="visualizer-panel">
             <div>
-                <h3 style="margin-top:0; color:var(--text-secondary); font-size: 1rem;">Live Slot Monitoring & Allocation</h3>
+                <h3 style="margin-top:0; color:var(--text-secondary); font-size: 1rem;">2 & 3. Live Slot Monitoring & Allocation (22 Bays)</h3>
                 <div class="parking-layout" id="slotStatusDisplay">
                     <!-- 22 Slots render here -->
                 </div>
             </div>
 
             <div class="audit-section">
-                <h4>Administrative Audit & VAT Log</h4>
+                <h4>8. Administrative Audit & VAT Log</h4>
                 <div id="auditLogContent">No transactions recorded yet. Click 'Sync System' to update.</div>
             </div>
         </div>
@@ -327,7 +328,7 @@
     <script>
         const API_URL = "https://modern-parking-system.onrender.com";
         const numSlots = 22; 
-        let activeParkedVehicles = {}; // Map of bayNumber -> { plate, entryTime }
+        let activeParkedVehicles = {}; 
 
         document.getElementById('currentYear').innerText = new Date().getFullYear();
 
@@ -371,7 +372,6 @@
                 return;
             }
 
-            // Check if plate is already parked
             for (let bay in activeParkedVehicles) {
                 if (activeParkedVehicles[bay].plate.replace(/\s+/g, '') === plate.replace(/\s+/g, '')) {
                     showNotification(`Vehicle ${plate} is already parked in Bay ${bay}!`, true);
@@ -384,7 +384,6 @@
                 randomBay = Math.floor(Math.random() * numSlots) + 1;
             } while (occupiedBayNumbers.includes(randomBay));
 
-            // Record precise entry time down to the exact second
             activeParkedVehicles[randomBay] = {
                 plate: plate,
                 entryTime: new Date()
@@ -395,7 +394,6 @@
             plateInput.value = '';
         }
 
-        // Strict Kenyan plate regex: 3 letters, space optional, 3 digits, 1 letter (e.g. KCA123X or KCA 123X)
         const kenyanPlateRegex = /^[A-Z]{3}\s?[0-9]{3}[A-Z]$/;
 
         function handlePlateInput(inputField) {
@@ -408,10 +406,10 @@
                 if (kenyanPlateRegex.test(val)) {
                     calculatePreciseFee(val);
                 } else {
-                    amountField.value = ""; // Keep blank if format is incomplete/invalid
+                    amountField.value = ""; 
                 }
             } else {
-                amountField.value = ""; // Keep completely blank in the background
+                amountField.value = ""; 
             }
         }
 
@@ -434,7 +432,7 @@
                 const rawCost = elapsedSeconds * costPerSecond;
                 const finalFee = Math.max(Math.ceil(rawCost), 1);
 
-                amountField.value = `${finalFee}`; // Displays only the numerical fee amount cleanly
+                amountField.value = `${finalFee}`; 
             } else {
                 amountField.value = "";
             }
@@ -446,13 +444,12 @@
             const method = document.getElementById('payMethod').value;
             const amountStr = document.getElementById('payAmount').value;
 
-            if(!plate || amountStr.includes("Awaiting") || amountStr.includes("Format") || amountStr.includes("not found")) {
+            if(!plate || !amountStr) {
                 showNotification("Please enter a valid active plate number", true);
                 return;
             }
 
-            // Extract numeric value from amount string
-            const amount = parseFloat(amountStr.split(' ')[0]);
+            const amount = parseFloat(amountStr);
 
             let targetBay = null;
             for (let bay in activeParkedVehicles) {
