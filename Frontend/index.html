@@ -210,7 +210,7 @@
             color: var(--accent-secondary);
         }
 
-        /* --- Professional Footer --- */
+        /* --- Footer --- */
         .footer {
             background-color: var(--card-bg);
             border-top: 1px solid #334155;
@@ -278,8 +278,8 @@
             <div class="control-card">
                 <h3>Payment & Exit</h3>
                 <div class="form-group">
-                    <label>Number Plate</label>
-                    <input type="text" id="payPlate" placeholder="e.g., KCA 123X">
+                    <label>Number Plate (e.g. KCA 123X)</label>
+                    <input type="text" id="payPlate" placeholder="KCA 123X" maxlength="8" oninput="handlePlateInput(this)">
                 </div>
                 <div class="form-group">
                     <label>Payment Method</label>
@@ -290,12 +290,11 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Amount (KES)</label>
-                    <input type="number" id="payAmount" placeholder="e.g., 150">
-                </div>
+    <label>Computed Amount (KES) - Rate: KES 500/hr</label>
+    <input type="text" id="payAmount" readonly placeholder="" style="background-color: #1e293b; font-weight: bold; color: var(--accent-secondary);">
+</div>
                 <button class="action-btn pay" onclick="processPayment()">Confirm Payment & Open Barrier</button>
             </div>
-        </div>
 
         <!-- Visualizer & Audit Logs Panel -->
         <div class="visualizer-panel">
@@ -327,8 +326,8 @@
 
     <script>
         const API_URL = "https://modern-parking-system.onrender.com";
-        const numSlots = 22; // Updated to 22 bays
-        let occupiedBays = []; 
+        const numSlots = 22; 
+        let activeParkedVehicles = {}; // Map of bayNumber -> { plate, entryTime }
 
         document.getElementById('currentYear').innerText = new Date().getFullYear();
 
@@ -340,14 +339,16 @@
             setTimeout(() => notif.style.display = 'none', 3000);
         }
 
-        function renderSlots(activeBays = []) {
+        function renderSlots() {
             const layout = document.getElementById('slotStatusDisplay');
             if(!layout) return;
             layout.innerHTML = '';
             
+            const occupiedBayNumbers = Object.keys(activeParkedVehicles).map(Number);
+
             for (let i = 1; i <= numSlots; i++) {
                 const slotDiv = document.createElement('div');
-                const isOccupied = activeBays.includes(i);
+                const isOccupied = occupiedBayNumbers.includes(i);
                 
                 slotDiv.className = `slot ${isOccupied ? 'occupied' : 'empty'}`;
                 slotDiv.innerHTML = `<span>Bay ${i}</span><small>${isOccupied ? 'Taken' : 'Free'}</small>`;
@@ -356,45 +357,121 @@
         }
 
         async function processEntry() {
-            const plate = document.getElementById('entryPlate').value.trim();
+            const plateInput = document.getElementById('entryPlate');
+            const plate = plateInput.value.trim().toUpperCase();
+            
             if(!plate) {
                 showNotification("Please enter a number plate", true);
                 return;
             }
 
-            if (occupiedBays.length >= numSlots) {
+            const occupiedBayNumbers = Object.keys(activeParkedVehicles).map(Number);
+            if (occupiedBayNumbers.length >= numSlots) {
                 showNotification("Parking lot is fully full (22/22 bays taken)!", true);
                 return;
+            }
+
+            // Check if plate is already parked
+            for (let bay in activeParkedVehicles) {
+                if (activeParkedVehicles[bay].plate.replace(/\s+/g, '') === plate.replace(/\s+/g, '')) {
+                    showNotification(`Vehicle ${plate} is already parked in Bay ${bay}!`, true);
+                    return;
+                }
             }
 
             let randomBay;
             do {
                 randomBay = Math.floor(Math.random() * numSlots) + 1;
-            } while (occupiedBays.includes(randomBay));
+            } while (occupiedBayNumbers.includes(randomBay));
 
-            occupiedBays.push(randomBay);
+            // Record precise entry time down to the exact second
+            activeParkedVehicles[randomBay] = {
+                plate: plate,
+                entryTime: new Date()
+            };
+
             showNotification(`Vehicle ${plate} assigned to Bay ${randomBay}!`);
-            renderSlots(occupiedBays);
-            document.getElementById('entryPlate').value = '';
+            renderSlots();
+            plateInput.value = '';
+        }
+
+        // Strict Kenyan plate regex: 3 letters, space optional, 3 digits, 1 letter (e.g. KCA123X or KCA 123X)
+        const kenyanPlateRegex = /^[A-Z]{3}\s?[0-9]{3}[A-Z]$/;
+
+        function handlePlateInput(inputField) {
+            let val = inputField.value.toUpperCase();
+            inputField.value = val;
+
+            const amountField = document.getElementById('payAmount');
+
+            if (val.length >= 7) {
+                if (kenyanPlateRegex.test(val)) {
+                    calculatePreciseFee(val);
+                } else {
+                    amountField.value = ""; // Keep blank if format is incomplete/invalid
+                }
+            } else {
+                amountField.value = ""; // Keep completely blank in the background
+            }
+        }
+
+        function calculatePreciseFee(plate) {
+            const amountField = document.getElementById('payAmount');
+            
+            let foundVehicle = null;
+            for (let bay in activeParkedVehicles) {
+                if (activeParkedVehicles[bay].plate.replace(/\s+/g, '') === plate.replace(/\s+/g, '')) {
+                    foundVehicle = activeParkedVehicles[bay];
+                    break;
+                }
+            }
+
+            if (foundVehicle) {
+                const now = new Date();
+                const elapsedSeconds = Math.max(1, Math.floor((now - foundVehicle.entryTime) / 1000));
+                
+                const costPerSecond = 500 / 3600;
+                const rawCost = elapsedSeconds * costPerSecond;
+                const finalFee = Math.max(Math.ceil(rawCost), 1);
+
+                amountField.value = `${finalFee}`; // Displays only the numerical fee amount cleanly
+            } else {
+                amountField.value = "";
+            }
         }
 
         async function processPayment() {
-            const plate = document.getElementById('payPlate').value.trim();
+            const plateInput = document.getElementById('payPlate');
+            const plate = plateInput.value.trim().toUpperCase();
             const method = document.getElementById('payMethod').value;
-            const amount = parseFloat(document.getElementById('payAmount').value);
+            const amountStr = document.getElementById('payAmount').value;
 
-            if(!plate || isNaN(amount)) {
-                showNotification("Please enter plate and valid KES amount", true);
+            if(!plate || amountStr.includes("Awaiting") || amountStr.includes("Format") || amountStr.includes("not found")) {
+                showNotification("Please enter a valid active plate number", true);
                 return;
             }
 
-            if (occupiedBays.length > 0) {
-                occupiedBays.shift(); // Frees up the oldest bay on exit
+            // Extract numeric value from amount string
+            const amount = parseFloat(amountStr.split(' ')[0]);
+
+            let targetBay = null;
+            for (let bay in activeParkedVehicles) {
+                if (activeParkedVehicles[bay].plate.replace(/\s+/g, '') === plate.replace(/\s+/g, '')) {
+                    targetBay = bay;
+                    break;
+                }
             }
 
-            showNotification(`Payment Confirmed via ${method}! Barrier OPEN.`);
-            renderSlots(occupiedBays);
-            document.getElementById('payPlate').value = '';
+            if (targetBay) {
+                delete activeParkedVehicles[targetBay];
+            } else {
+                showNotification("Vehicle record not matched in active bays", true);
+                return;
+            }
+
+            showNotification(`Payment of KES ${amount} confirmed via ${method}! Barrier OPEN.`);
+            renderSlots();
+            plateInput.value = '';
             document.getElementById('payAmount').value = '';
             fetchAuditLogs();
         }
@@ -416,12 +493,11 @@
                 }
                 showNotification("Audit logs synchronized.");
             } catch (err) {
-                document.getElementById('auditLogContent').innerHTML = "Connected to backend ledger active (22-Bay configuration).";
+                document.getElementById('auditLogContent').innerHTML = "Connected to backend ledger active (Rate: KES 500/hr).";
                 showNotification("Auditable ledger ready.");
             }
         }
 
-        // Initialize 22 slots on load
         renderSlots();
     </script>
 </body>
